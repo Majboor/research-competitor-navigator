@@ -1,12 +1,162 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import HeroSection from '@/components/HeroSection';
+import OnboardingForm from '@/components/OnboardingForm';
+import { FormData, SearchResponse } from '@/types';
+import { searchCompetitors } from '@/utils/api';
+import SearchResults from '@/components/SearchResults';
+import AnimatedBackground from '@/components/AnimatedBackground';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState<Error | null>(null);
+  const { toast } = useToast();
+
+  const handleGetStarted = () => {
+    setShowOnboarding(true);
+    setSearchResults(null);
+  };
+
+  const handleFormCancel = () => {
+    setShowOnboarding(false);
+  };
+
+  const handleFormSubmit = async (data: FormData) => {
+    setLoading(true);
+    setSearchError(null);
+    
+    try {
+      // Determine the search query based on category
+      const query = data.category === 'other' && data.customCategory 
+        ? data.customCategory 
+        : data.category;
+        
+      // Determine the location
+      const location = data.location || data.customLocation || 'us';
+      
+      // Call the API
+      const results = await searchCompetitors(query, location);
+      
+      setSearchResults(results);
+      setShowOnboarding(false);
+      
+      toast({
+        title: "Search completed",
+        description: `Found ${results.results.length} competitors for your search.`,
+      });
+    } catch (error) {
+      console.error('Search error:', error);
+      setSearchError(error instanceof Error ? error : new Error('An unknown error occurred'));
+      
+      toast({
+        title: "Search failed",
+        description: "There was a problem finding competitors. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReset = () => {
+    setSearchResults(null);
+    setSearchError(null);
+    setShowOnboarding(true);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen relative">
+      <AnimatedBackground />
+      
+      <header className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center">
+            <span className="text-xl font-bold text-brand-600">CompetitorFinder</span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
+              About
+            </button>
+            <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
+              Features
+            </button>
+            <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
+              Pricing
+            </button>
+            <button 
+              className="bg-brand-50 text-brand-600 hover:bg-brand-100 px-4 py-2 rounded-lg transition-colors"
+              onClick={handleGetStarted}
+            >
+              Get Started
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
+        {!showOnboarding && !searchResults && !loading && !searchError && (
+          <HeroSection onGetStarted={handleGetStarted} />
+        )}
+        
+        {showOnboarding && (
+          <OnboardingForm 
+            onSubmit={handleFormSubmit} 
+            onCancel={handleFormCancel} 
+          />
+        )}
+
+        {(searchResults || loading || searchError) && (
+          <SearchResults 
+            results={searchResults} 
+            loading={loading} 
+            error={searchError}
+            onReset={handleReset}
+          />
+        )}
+      </main>
+
+      <footer className="relative z-10 border-t border-neutral-200 bg-white bg-opacity-50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">CompetitorFinder</h3>
+              <p className="text-neutral-600 text-sm">
+                Find and analyze your competition instantly. Get insights into the market landscape.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium mb-4">Product</h4>
+              <ul className="space-y-2 text-sm text-neutral-600">
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Use Cases</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium mb-4">Company</h4>
+              <ul className="space-y-2 text-sm text-neutral-600">
+                <li><a href="#" className="hover:text-brand-600 transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Careers</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium mb-4">Support</h4>
+              <ul className="space-y-2 text-sm text-neutral-600">
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-brand-600 transition-colors">Privacy</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-neutral-200 text-center text-sm text-neutral-500">
+            &copy; {new Date().getFullYear()} CompetitorFinder. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
