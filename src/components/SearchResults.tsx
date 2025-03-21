@@ -48,9 +48,11 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     );
   }
 
-  if (!results || !results.results || results.results.length === 0) {
+  if (!results || !results.results) {
     return null;
   }
+
+  const hasResults = results.results && results.results.length > 0;
 
   return (
     <div className="w-full animate-fade-in">
@@ -65,13 +67,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {results.results.map((competitor, index) => (
-          <CompetitorCard key={index} competitor={competitor} index={index} />
-        ))}
-      </div>
-      
-      {results.results.length === 0 && (
+      {hasResults ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {results.results.map((competitor, index) => (
+            <CompetitorCard key={index} competitor={competitor} index={index} />
+          ))}
+        </div>
+      ) : (
         <div className="text-center py-16">
           <h3 className="text-xl font-medium text-neutral-700 mb-2">No competitors found</h3>
           <p className="text-neutral-500 mb-6">Try adjusting your search criteria</p>

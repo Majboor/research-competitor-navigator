@@ -1,16 +1,27 @@
+
 import { SearchResponse, Competitor } from '../types';
 
 const API_BASE_URL = 'https://competitor.techrealm.online';
 
 export async function searchCompetitors(query: string, location: string, num: number = 5): Promise<SearchResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&num=${num}`);
+    const searchUrl = `${API_BASE_URL}/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&num=${num}`;
+    console.log('Fetching from URL:', searchUrl);
+    
+    const response = await fetch(searchUrl, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+      mode: 'cors',
+    });
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
     
     const data = await response.json();
+    console.log('API response:', data);
     
     // Process each competitor to get final URLs after redirects
     const processedResults = await Promise.all(
@@ -39,13 +50,25 @@ export async function searchCompetitors(query: string, location: string, num: nu
 // Helper function to resolve the final URL after all redirects
 export async function getFinalUrl(url: string): Promise<string> {
   try {
-    const response = await fetch(url, {
-      method: 'HEAD',
-      redirect: 'follow',
-    });
+    // For security reasons, browser may not allow HEAD requests in CORS mode
+    // Using a proxy or server-side solution would be better, but for now we'll
+    // try a GET request with no-cors mode first
+    console.log('Resolving URL:', url);
     
-    // Return the final URL after redirects
-    return response.url;
+    // First try with fetch HEAD if possible
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        redirect: 'follow',
+        mode: 'no-cors', // Try with no-cors mode
+      });
+      
+      // If successful, return the URL (this might be the original URL in no-cors mode)
+      return response.url || url;
+    } catch (headError) {
+      console.warn('HEAD request failed, falling back to regular link:', headError);
+      return url; // Fall back to the original URL
+    }
   } catch (error) {
     console.error(`Error resolving final URL for ${url}:`, error);
     return url; // Return original URL if there's an error

@@ -38,8 +38,12 @@ const Index = () => {
       // Determine the location
       const location = data.location || data.customLocation || 'us';
       
+      console.log(`Searching for ${query} in ${location}, requesting ${numResults} results`);
+      
       // Call the API with the number of results to fetch
       const results = await searchCompetitors(query, location, numResults);
+      
+      console.log('Search results:', results);
       
       setSearchResults(results);
       setShowOnboarding(false);
