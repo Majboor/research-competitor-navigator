@@ -1,4 +1,3 @@
-
 import { SearchResponse, Competitor } from '../types';
 
 const API_BASE_URL = 'https://competitor.techrealm.online';
@@ -13,7 +12,6 @@ export async function searchCompetitors(query: string, location: string, num: nu
       headers: {
         'Accept': 'application/json',
       },
-      mode: 'cors',
     });
     
     if (!response.ok) {
@@ -23,55 +21,13 @@ export async function searchCompetitors(query: string, location: string, num: nu
     const data = await response.json();
     console.log('API response:', data);
     
-    // Process each competitor to get final URLs after redirects
-    const processedResults = await Promise.all(
-      data.results.map(async (competitor: Competitor) => {
-        try {
-          // Check for redirect on the URL
-          const finalUrl = await getFinalUrl(competitor.link);
-          return { ...competitor, link: finalUrl };
-        } catch (error) {
-          console.warn(`Could not resolve final URL for ${competitor.link}:`, error);
-          return competitor;
-        }
-      })
-    );
-    
     return {
       query: data.query,
-      results: processedResults
+      results: data.results
     };
   } catch (error) {
     console.error('Error searching competitors:', error);
     throw error;
-  }
-}
-
-// Helper function to resolve the final URL after all redirects
-export async function getFinalUrl(url: string): Promise<string> {
-  try {
-    // For security reasons, browser may not allow HEAD requests in CORS mode
-    // Using a proxy or server-side solution would be better, but for now we'll
-    // try a GET request with no-cors mode first
-    console.log('Resolving URL:', url);
-    
-    // First try with fetch HEAD if possible
-    try {
-      const response = await fetch(url, {
-        method: 'HEAD',
-        redirect: 'follow',
-        mode: 'no-cors', // Try with no-cors mode
-      });
-      
-      // If successful, return the URL (this might be the original URL in no-cors mode)
-      return response.url || url;
-    } catch (headError) {
-      console.warn('HEAD request failed, falling back to regular link:', headError);
-      return url; // Fall back to the original URL
-    }
-  } catch (error) {
-    console.error(`Error resolving final URL for ${url}:`, error);
-    return url; // Return original URL if there's an error
   }
 }
 
