@@ -7,6 +7,11 @@ import { searchCompetitors } from '@/utils/api';
 import SearchResults from '@/components/SearchResults';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { useToast } from '@/hooks/use-toast';
+import FeaturesSection from '@/components/FeaturesSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
+import FAQSection from '@/components/FAQSection';
+import CTASection from '@/components/CTASection';
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -135,7 +140,14 @@ const Index = () => {
 
       <main className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
         {!showOnboarding && !searchResults && !loading && !searchError && (
-          <HeroSection onGetStarted={handleGetStarted} />
+          <>
+            <HeroSection onGetStarted={handleGetStarted} />
+            <FeaturesSection />
+            <HowItWorksSection />
+            <TestimonialsSection />
+            <FAQSection />
+            <CTASection onGetStarted={handleGetStarted} />
+          </>
         )}
         
         {showOnboarding && (
