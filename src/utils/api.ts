@@ -1,7 +1,7 @@
 
 import { SearchResponse, Competitor } from '../types';
 
-const API_BASE_URL = 'http://productfinder.techrealm.online';
+const API_BASE_URL = 'https://productfinder.techrealm.online';
 
 export async function searchCompetitors(query: string, location: string, num: number = 5): Promise<SearchResponse> {
   try {
