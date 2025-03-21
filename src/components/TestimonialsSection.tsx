@@ -11,7 +11,7 @@ const TestimonialsSection: React.FC = () => {
       role: 'Marketing Director',
       company: 'GrowthMakers',
       avatar: '/placeholder.svg',
-      content: 'CompetitorFinder has completely transformed how we analyze our market. We discovered 3 competitors we didn't even know existed!',
+      content: 'CompetitorFinder has completely transformed how we analyze our market. We discovered 3 competitors we didn\'t even know existed!',
       rating: 5,
     },
     {
@@ -29,7 +29,7 @@ const TestimonialsSection: React.FC = () => {
       role: 'Startup Founder',
       company: 'NexGen Solutions',
       avatar: '/placeholder.svg',
-      content: 'I use this tool before launching any new product. It's saved us from making several costly positioning mistakes.',
+      content: 'I use this tool before launching any new product. It\'s saved us from making several costly positioning mistakes.',
       rating: 4,
     },
   ];
