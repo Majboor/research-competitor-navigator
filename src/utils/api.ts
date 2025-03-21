@@ -1,20 +1,54 @@
-
-import { SearchResponse } from '../types';
+import { SearchResponse, Competitor } from '../types';
 
 const API_BASE_URL = 'https://competitor.techrealm.online';
 
-export async function searchCompetitors(query: string, location: string): Promise<SearchResponse> {
+export async function searchCompetitors(query: string, location: string, num: number = 5): Promise<SearchResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`);
+    const response = await fetch(`${API_BASE_URL}/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&num=${num}`);
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    // Process each competitor to get final URLs after redirects
+    const processedResults = await Promise.all(
+      data.results.map(async (competitor: Competitor) => {
+        try {
+          // Check for redirect on the URL
+          const finalUrl = await getFinalUrl(competitor.link);
+          return { ...competitor, link: finalUrl };
+        } catch (error) {
+          console.warn(`Could not resolve final URL for ${competitor.link}:`, error);
+          return competitor;
+        }
+      })
+    );
+    
+    return {
+      query: data.query,
+      results: processedResults
+    };
   } catch (error) {
     console.error('Error searching competitors:', error);
     throw error;
+  }
+}
+
+// Helper function to resolve the final URL after all redirects
+export async function getFinalUrl(url: string): Promise<string> {
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
+    
+    // Return the final URL after redirects
+    return response.url;
+  } catch (error) {
+    console.error(`Error resolving final URL for ${url}:`, error);
+    return url; // Return original URL if there's an error
   }
 }
 

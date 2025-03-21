@@ -13,6 +13,7 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<Error | null>(null);
+  const [numResults, setNumResults] = useState(5); // Default number of results
   const { toast } = useToast();
 
   const handleGetStarted = () => {
@@ -37,8 +38,8 @@ const Index = () => {
       // Determine the location
       const location = data.location || data.customLocation || 'us';
       
-      // Call the API
-      const results = await searchCompetitors(query, location);
+      // Call the API with the number of results to fetch
+      const results = await searchCompetitors(query, location, numResults);
       
       setSearchResults(results);
       setShowOnboarding(false);
@@ -67,6 +68,18 @@ const Index = () => {
     setShowOnboarding(true);
   };
 
+  // Function to change the number of results
+  const handleResultsCountChange = (count: number) => {
+    setNumResults(count);
+    // If we already have search results, update the toast to inform the user
+    if (searchResults) {
+      toast({
+        title: "Results count updated",
+        description: `Will now show up to ${count} competitors in future searches.`,
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen relative">
       <AnimatedBackground />
@@ -83,6 +96,26 @@ const Index = () => {
             <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
               Features
             </button>
+            <div className="relative group">
+              <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
+                Results Count
+              </button>
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20">
+                <div className="py-1">
+                  {[5, 10, 20, 50].map((count) => (
+                    <button
+                      key={count}
+                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${
+                        numResults === count ? 'bg-gray-100 font-medium' : ''
+                      }`}
+                      onClick={() => handleResultsCountChange(count)}
+                    >
+                      {count} results
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
             <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
               Pricing
             </button>

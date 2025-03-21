@@ -28,4 +28,5 @@ export interface FormData {
   customCategory?: string;
   location: string;
   customLocation?: string;
+  numResults?: number;
 }
