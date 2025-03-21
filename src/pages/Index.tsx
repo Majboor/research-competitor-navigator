@@ -12,6 +12,7 @@ import TestimonialsSection from '@/components/TestimonialsSection';
 import HowItWorksSection from '@/components/HowItWorksSection';
 import FAQSection from '@/components/FAQSection';
 import CTASection from '@/components/CTASection';
+import SEOHelmet from '@/components/SEOHelmet';
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -91,6 +92,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative">
+      <SEOHelmet 
+        title="CompetitorFinder - Find Your Business Competitors"
+        description="Discover who your competitors are in any market. Get detailed insights and analysis to stay ahead of the competition."
+        canonicalUrl="https://competitorfinder.com/"
+      />
+      
       <AnimatedBackground />
       
       <header className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
