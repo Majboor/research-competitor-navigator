@@ -8,6 +8,8 @@ export interface Competitor {
 export interface SearchResponse {
   query: string;
   results: Competitor[];
+  total_results?: number;
+  limited_results?: boolean;
 }
 
 export interface CategoryOption {

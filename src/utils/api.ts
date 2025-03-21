@@ -1,11 +1,11 @@
 
 import { SearchResponse, Competitor } from '../types';
 
-const API_BASE_URL = 'https://competitor.techrealm.online';
+const API_BASE_URL = 'http://192.168.100.9:5009';
 
 export async function searchCompetitors(query: string, location: string, num: number = 5): Promise<SearchResponse> {
   try {
-    const searchUrl = `${API_BASE_URL}/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&num=${num}`;
+    const searchUrl = `${API_BASE_URL}/search?query=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}&limit=${num}`;
     console.log('Fetching from URL:', searchUrl);
     
     const response = await fetch(searchUrl, {
@@ -24,7 +24,7 @@ export async function searchCompetitors(query: string, location: string, num: nu
     
     return {
       query: data.query,
-      results: data.results
+      results: data.results || []
     };
   } catch (error) {
     console.error('Error searching competitors:', error);
