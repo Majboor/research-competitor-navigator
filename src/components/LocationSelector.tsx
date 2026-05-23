@@ -27,7 +27,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
 
   return (
     <div className="w-full max-w-3xl mx-auto animate-fade-in">
-      <h2 className="text-2xl font-semibold text-center mb-2">Where are your competitors?</h2>
+      <h2 className="font-display text-2xl font-semibold text-center mb-2">Where are your competitors?</h2>
       <p className="text-neutral-500 text-center mb-8">Select a location to find competitors in that market</p>
       
       <div className="relative mx-auto max-w-md mb-8">
@@ -43,6 +43,12 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
         />
       </div>
       
+      {filteredLocations.length === 0 && (
+        <div className="text-center text-neutral-500 text-sm mb-8">
+          No countries match &ldquo;{searchTerm}&rdquo;. Use the custom field below.
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 max-h-[400px] overflow-y-auto pr-2">
         {filteredLocations.map((location: LocationOption) => (
           <div

@@ -19,7 +19,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
 }) => {
   return (
     <div className="w-full max-w-3xl mx-auto animate-fade-in">
-      <h2 className="text-2xl font-semibold text-center mb-2">Select a product category</h2>
+      <h2 className="font-display text-2xl font-semibold text-center mb-2">Select a product category</h2>
       <p className="text-neutral-500 text-center mb-8">Choose the category you want to find competitors for</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

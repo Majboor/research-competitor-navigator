@@ -13,8 +13,8 @@ interface SEOHelmetProps {
 const SEOHelmet = ({
   title = 'CompetitorFinder - Find and Analyze Your Competition',
   description = 'Discover and analyze your competitors instantly. Get valuable insights into your market landscape with CompetitorFinder.',
-  canonicalUrl = 'https://competitorfinder.com',
-  ogImageUrl = '/og-image.png',
+  canonicalUrl = 'https://researcher.techrealm.online/',
+  ogImageUrl = 'https://researcher.techrealm.online/og-image.png',
   ogType = 'website',
   twitterCard = 'summary_large_image',
 }: SEOHelmetProps) => {
