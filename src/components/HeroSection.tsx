@@ -17,10 +17,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onGetStarted }) => {
             The smartest way to find competitors
           </div>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-neutral-900 mb-6 text-balance">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-neutral-900 mb-6 text-balance">
             Discover Your Competitors
             <br />
-            <span className="text-brand-600">In Seconds</span>
+            <span className="text-gradient-brand">In Seconds</span>
           </h1>
           
           <p className="text-xl text-neutral-600 mb-8">
