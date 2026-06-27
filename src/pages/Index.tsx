@@ -1,19 +1,34 @@
 
-import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useState, lazy, Suspense } from 'react';
+import { Bookmark } from 'lucide-react';
+import SavedCompetitorsSheet from '@/components/SavedCompetitorsSheet';
+import { useSavedCompetitors } from '@/hooks/useSavedCompetitors';
 import HeroSection from '@/components/HeroSection';
-import OnboardingForm from '@/components/OnboardingForm';
+import HeroSectionB from '@/components/HeroSectionB';
+import { useVariant } from '@/hooks/useVariant';
+import ResultsCountMenu from '@/components/ResultsCountMenu';
+import MobileNav from '@/components/MobileNav';
 import { FormData, SearchResponse } from '@/types';
 import { searchCompetitors } from '@/utils/api';
-import SearchResults from '@/components/SearchResults';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { useToast } from '@/hooks/use-toast';
-import FeaturesSection from '@/components/FeaturesSection';
-import TestimonialsSection from '@/components/TestimonialsSection';
-import HowItWorksSection from '@/components/HowItWorksSection';
-import FAQSection from '@/components/FAQSection';
-import CTASection from '@/components/CTASection';
 import SEOHelmet from '@/components/SEOHelmet';
+
+// Below-the-fold and interaction-gated views are code-split so they don't
+// weigh down the initial landing bundle. Only HeroSection ships up front.
+const OnboardingForm = lazy(() => import('@/components/OnboardingForm'));
+const SearchResults = lazy(() => import('@/components/SearchResults'));
+const FeaturesSection = lazy(() => import('@/components/FeaturesSection'));
+const TestimonialsSection = lazy(() => import('@/components/TestimonialsSection'));
+const HowItWorksSection = lazy(() => import('@/components/HowItWorksSection'));
+const FAQSection = lazy(() => import('@/components/FAQSection'));
+const CTASection = lazy(() => import('@/components/CTASection'));
+
+const SectionFallback = () => (
+  <div className="w-full py-16 flex justify-center" aria-hidden="true">
+    <div className="h-8 w-8 rounded-full border-2 border-brand-200 border-t-brand-500 animate-spin" />
+  </div>
+);
 
 const Index = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -21,6 +36,9 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<Error | null>(null);
   const [numResults, setNumResults] = useState(5); // Default number of results
+  const [savedOpen, setSavedOpen] = useState(false);
+  const { count: savedCount } = useSavedCompetitors();
+  const variant = useVariant(); // 'a' (control) or 'b' (?variant=b challenger)
   const { toast } = useToast();
 
   const handleGetStarted = () => {
@@ -92,89 +110,99 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative overflow-x-hidden">
       <SEOHelmet 
         title="CompetitorFinder - Find Your Business Competitors"
         description="Discover who your competitors are in any market. Get detailed insights and analysis to stay ahead of the competition."
-        canonicalUrl="https://competitorfinder.com/"
+        canonicalUrl="https://researcher.techrealm.online/"
       />
       
+      <a href="#main-content" className="skip-to-content">Skip to main content</a>
+
       <AnimatedBackground />
-      
+
       <header className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <span className="text-xl font-bold text-brand-600">CompetitorFinder</span>
+            <span className="font-display text-xl font-bold text-gradient-brand">CompetitorFinder</span>
           </div>
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <nav aria-label="Primary" className="flex items-center gap-1 sm:gap-4">
             <button className="hidden md:inline-flex text-neutral-600 hover:text-neutral-900 transition-colors">
               About
             </button>
             <button className="hidden md:inline-flex text-neutral-600 hover:text-neutral-900 transition-colors">
               Features
             </button>
-            <div className="relative group hidden sm:block">
-              <button className="text-neutral-600 hover:text-neutral-900 transition-colors inline-flex items-center gap-1">
-                {numResults} results
-                <ChevronDown size={16} />
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible focus-within:opacity-100 focus-within:visible transition-all duration-300 z-20">
-                <div className="py-1">
-                  {[5, 10, 20, 50].map((count) => (
-                    <button
-                      key={count}
-                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${
-                        numResults === count ? 'bg-gray-100 font-medium' : ''
-                      }`}
-                      onClick={() => handleResultsCountChange(count)}
-                    >
-                      {count} results
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="hidden md:block">
+              <ResultsCountMenu value={numResults} onChange={handleResultsCountChange} />
             </div>
             <button className="hidden md:inline-flex text-neutral-600 hover:text-neutral-900 transition-colors">
               Pricing
             </button>
             <button
-              className="bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 sm:px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+              className="relative inline-flex items-center gap-1.5 min-h-[44px] px-2 text-neutral-600 hover:text-neutral-900 transition-colors"
+              onClick={() => setSavedOpen(true)}
+              aria-label="Open saved competitors"
+            >
+              <Bookmark size={18} className={savedCount > 0 ? 'fill-brand-500 text-brand-500' : ''} />
+              <span className="hidden sm:inline">Saved</span>
+              {savedCount > 0 && (
+                <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-semibold rounded-full bg-brand-500 text-white">
+                  {savedCount}
+                </span>
+              )}
+            </button>
+            <button
+              className="inline-flex bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 sm:px-4 py-2 min-h-[44px] items-center rounded-lg transition-colors whitespace-nowrap"
               onClick={handleGetStarted}
             >
               Get Started
             </button>
-          </div>
+            <MobileNav
+              numResults={numResults}
+              onResultsCountChange={handleResultsCountChange}
+              onGetStarted={handleGetStarted}
+            />
+          </nav>
         </div>
       </header>
 
-      <main className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
-        {!showOnboarding && !searchResults && !loading && !searchError && (
-          <>
-            <HeroSection onGetStarted={handleGetStarted} />
-            <FeaturesSection />
-            <HowItWorksSection />
-            <TestimonialsSection />
-            <FAQSection />
-            <CTASection onGetStarted={handleGetStarted} />
-          </>
-        )}
-        
-        {showOnboarding && (
-          <OnboardingForm 
-            onSubmit={handleFormSubmit} 
-            onCancel={handleFormCancel} 
-          />
-        )}
+      <main id="main-content" tabIndex={-1} aria-label="Competitor finder" className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
+        <Suspense fallback={<SectionFallback />}>
+          {!showOnboarding && !searchResults && !loading && !searchError && (
+            <>
+              {variant === 'b' ? (
+                <HeroSectionB onGetStarted={handleGetStarted} />
+              ) : (
+                <HeroSection onGetStarted={handleGetStarted} />
+              )}
+              <FeaturesSection />
+              <HowItWorksSection />
+              <TestimonialsSection />
+              <FAQSection />
+              <CTASection onGetStarted={handleGetStarted} />
+            </>
+          )}
 
-        {(searchResults || loading || searchError) && (
-          <SearchResults 
-            results={searchResults} 
-            loading={loading} 
-            error={searchError}
-            onReset={handleReset}
-          />
-        )}
+          {showOnboarding && (
+            <OnboardingForm
+              onSubmit={handleFormSubmit}
+              onCancel={handleFormCancel}
+            />
+          )}
+
+          {(searchResults || loading || searchError) && (
+            <SearchResults
+              results={searchResults}
+              loading={loading}
+              error={searchError}
+              onReset={handleReset}
+            />
+          )}
+        </Suspense>
       </main>
+
+      <SavedCompetitorsSheet open={savedOpen} onOpenChange={setSavedOpen} />
 
       <footer className="relative z-10 border-t border-neutral-200 bg-white bg-opacity-50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
