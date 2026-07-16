@@ -3,7 +3,27 @@ import React from 'react';
 import { SearchResponse } from '../types';
 import CompetitorCard from './CompetitorCard';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Download } from 'lucide-react';
+
+const escapeCsv = (value: string) => `"${(value ?? '').replace(/"/g, '""')}"`;
+
+const exportResultsToCsv = (results: SearchResponse) => {
+  const header = ['Title', 'Link', 'Snippet'];
+  const rows = results.results.map((c) =>
+    [escapeCsv(c.title), escapeCsv(c.link), escapeCsv(c.snippet)].join(',')
+  );
+  const csv = [header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const slug = (results.query || 'competitors').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  link.href = url;
+  link.download = `competitors-${slug}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 interface SearchResultsProps {
   results: SearchResponse | null;
@@ -56,15 +76,28 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <div className="w-full animate-fade-in">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
         <div>
           <h2 className="text-2xl font-semibold">Your Competitors</h2>
           <p className="text-neutral-500">Based on your search: {results.query}</p>
         </div>
-        <Button onClick={onReset} variant="outline" size="sm" className="gap-2">
-          <ArrowLeft size={16} />
-          New Search
-        </Button>
+        <div className="flex items-center gap-2">
+          {hasResults && (
+            <Button
+              onClick={() => exportResultsToCsv(results)}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Download size={16} />
+              Export CSV
+            </Button>
+          )}
+          <Button onClick={onReset} variant="outline" size="sm" className="gap-2">
+            <ArrowLeft size={16} />
+            New Search
+          </Button>
+        </div>
       </div>
       
       {hasResults ? (
