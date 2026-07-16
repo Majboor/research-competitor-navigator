@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import HeroSection from '@/components/HeroSection';
 import OnboardingForm from '@/components/OnboardingForm';
 import { FormData, SearchResponse } from '@/types';
@@ -105,18 +106,19 @@ const Index = () => {
           <div className="flex items-center">
             <span className="text-xl font-bold text-brand-600">CompetitorFinder</span>
           </div>
-          <div className="flex items-center space-x-4">
-            <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <button className="hidden md:inline-flex text-neutral-600 hover:text-neutral-900 transition-colors">
               About
             </button>
-            <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
+            <button className="hidden md:inline-flex text-neutral-600 hover:text-neutral-900 transition-colors">
               Features
             </button>
-            <div className="relative group">
-              <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
-                Results Count
+            <div className="relative group hidden sm:block">
+              <button className="text-neutral-600 hover:text-neutral-900 transition-colors inline-flex items-center gap-1">
+                {numResults} results
+                <ChevronDown size={16} />
               </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-20">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible focus-within:opacity-100 focus-within:visible transition-all duration-300 z-20">
                 <div className="py-1">
                   {[5, 10, 20, 50].map((count) => (
                     <button
@@ -132,11 +134,11 @@ const Index = () => {
                 </div>
               </div>
             </div>
-            <button className="text-neutral-600 hover:text-neutral-900 transition-colors">
+            <button className="hidden md:inline-flex text-neutral-600 hover:text-neutral-900 transition-colors">
               Pricing
             </button>
-            <button 
-              className="bg-brand-50 text-brand-600 hover:bg-brand-100 px-4 py-2 rounded-lg transition-colors"
+            <button
+              className="bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 sm:px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
               onClick={handleGetStarted}
             >
               Get Started
